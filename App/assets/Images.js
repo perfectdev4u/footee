@@ -1,0 +1,17 @@
+export default {
+  LOGO: require('./Images/logo.png'),
+  userDefaultImg: require('./Images/userDefaultImg.png'),
+  loginTopImage: require('./Images/loginTopImage.png'),
+  onboardingImage: require('./Images/onboardingImage.png'),
+  accountConfirmedImage: require('./Images/accountConfirmedImage.png'),
+  sidebarHome: require('./Images/sidebarHome.png'),
+  sidebarEditProfile: require('./Images/sidebarEditProfile.png'),
+  sidebarCompanyProfile: require('./Images/sidebarCompanyProfile.png'),
+  sidebarChangePassword: require('./Images/sidebarChangePassword.png'),
+  sidebarTerm: require('./Images/sidebarTerm.png'),
+  sidebarLogout: require('./Images/sidebarLogout.png'),
+  inputUserIcon: require('./Images/inputUserIcon.png'),
+  inputEmailIcon: require('./Images/inputEmailIcon.png'),
+  inputPhoneIcon: require('./Images/inputPhoneIcon.png'),
+  inputLocationIcon: require('./Images/inputLocationIcon.png'),
+};
