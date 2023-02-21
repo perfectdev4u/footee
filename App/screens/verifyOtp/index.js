@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, SafeAreaView, View } from "react-native";
+import { Platform, SafeAreaView, View } from "react-native";
 import Container from "../../compnents/container";
 import CustomText from "../../compnents/customText";
 import colors from "../../theme/colors";
@@ -12,6 +12,7 @@ import apiUrls from "../../api/apiUrls";
 import { CommonActions } from "@react-navigation/native";
 import { addUser } from "../../redux/reducers/authReducers";
 import { useDispatch } from "react-redux";
+import { AlertShow } from "../../utils/constants";
 
 export default function VerifyOtp({ navigation, route, ...props }) {
   const dispatch = useDispatch();
@@ -21,8 +22,9 @@ export default function VerifyOtp({ navigation, route, ...props }) {
   const handleSubmit = () => {
     setIsLoading(true);
     const formData = new FormData();
-    formData.append("email", route.params.email);
+    formData.append("email", route?.params?.email || "");
     formData.append("otp", otp);
+    formData.append("platform", Platform.OS);
     apiPostMethod(apiUrls.baseUrl + apiUrls.otpVerify, formData)
       .then(({ data: { data, token } }) => {
         if (data) {
@@ -36,14 +38,32 @@ export default function VerifyOtp({ navigation, route, ...props }) {
           );
         } else {
           setIsLoading(false);
-          Alert.alert("Footee", "Somethings went wrong!");
+          AlertShow("Somethings went wrong!", dispatch);
         }
       })
       .catch((err) => {
+        setIsLoading(false);
         console.log("error==>", err?.response?.data);
         err = err?.response?.data;
+        AlertShow(err.message, dispatch);
+      });
+  };
+
+  const handleResendOTP = () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("email", route?.params?.email || "");
+    formData.append("platform", Platform.OS);
+    apiPostMethod(apiUrls.baseUrl + apiUrls.resendOTP, formData)
+      .then(({ data: { message, status } }) => {
         setIsLoading(false);
-        Alert.alert("Footee", err.message);
+        AlertShow(message, dispatch);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.log("error==>", err?.response?.data);
+        err = err?.response?.data;
+        AlertShow(err.message, dispatch);
       });
   };
   return (
@@ -76,7 +96,7 @@ export default function VerifyOtp({ navigation, route, ...props }) {
           </CustomText>
           <OtpInputs
             handleChange={setOtp}
-            numberOfInputs={4}
+            numberOfInputs={5}
             autofillFromClipboard={true}
             autoFocus={true}
             focusStyles={{
@@ -84,6 +104,10 @@ export default function VerifyOtp({ navigation, route, ...props }) {
             }}
             inputStyles={{
               fontSize: 18,
+              width: "100%",
+              height: "100%",
+              borderWidth: 0,
+              textAlign: "center",
             }}
             inputContainerStyles={{
               height: 50,
@@ -123,7 +147,7 @@ export default function VerifyOtp({ navigation, route, ...props }) {
               fontWeight={"400"}
               color={colors.THEME_COLOR}
               isPressable={true}
-              onPress={() => navigation.goBack()}
+              onPress={handleResendOTP}
             >
               Resend
             </CustomText>

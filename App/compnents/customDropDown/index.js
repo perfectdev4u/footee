@@ -20,6 +20,7 @@ export default memo(function CustomDropDown({
   borderColor = colors.BORDER_COLOR,
   activeUnderlineColor = colors.INPUT_PLACEHOLDER,
   onChangeText,
+  maxWidth = 400,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(
@@ -32,10 +33,10 @@ export default memo(function CustomDropDown({
     onChangeText(value);
   };
 
-  useEffect(
-    () => value != selectedValue && setSelectedValue(value || ""),
-    [value]
-  );
+  useEffect(() => {
+    if (value != selectedValue) setSelectedValue(value || "");
+    return () => null;
+  }, [value]);
 
   return (
     <View
@@ -45,15 +46,17 @@ export default memo(function CustomDropDown({
         borderColor,
         borderRadius,
         marginTop,
+        maxWidth,
       }}
     >
-      <View
+      <TouchableOpacity
         style={{
           flex: 1,
           flexDirection: "row",
           alignItems: "center",
           paddingRight: 10,
         }}
+        onPress={() => setIsOpen(!isOpen)}
       >
         <View
           style={{
@@ -87,7 +90,7 @@ export default memo(function CustomDropDown({
             name={isOpen ? "up" : "down"}
           />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
       {isOpen &&
         options?.map((item, index) => (
           <View

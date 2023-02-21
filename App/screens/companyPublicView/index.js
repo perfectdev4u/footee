@@ -19,6 +19,7 @@ export default function CompanyPublicView() {
       JSON.stringify(company_profile) != JSON.stringify(user?.company_profile)
     )
       setCompany_profile(user.company_profile);
+    return () => null;
   }, [user?.company_profile]);
   return (
     <Container backgroundColor={colors.WHITE}>
@@ -29,7 +30,7 @@ export default function CompanyPublicView() {
       <View
         style={[
           commonStyle.container(),
-          { marginHorizontal: 30, marginTop: 30 },
+          { marginHorizontal: 30, marginTop: 30, alignItems: "center" },
         ]}
       >
         <View
@@ -40,6 +41,7 @@ export default function CompanyPublicView() {
             borderRadius: 6,
             flexDirection: "row",
             alignItems: "center",
+            maxWidth: 400,
           }}
         >
           <CustomImage

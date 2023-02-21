@@ -1,0 +1,1 @@
+1.) Please remove @react-native-clipboard/clipboard from node_modules/react-native-otp-inputs;

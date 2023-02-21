@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { SafeAreaView, TouchableOpacity, View } from "react-native";
 import Images from "../../assets/Images";
 import Container from "../../compnents/container";
 import CustomHeader from "../../compnents/customHeader";
@@ -9,7 +9,9 @@ import CustomText from "../../compnents/customText";
 import colors from "../../theme/colors";
 import style from "./style";
 import {
+  AlertShow,
   CheckIcon,
+  isVaildNumber,
   isValidEmail,
   TextInputIcon,
   TextInputPasswordIcon,
@@ -20,18 +22,22 @@ import screenString from "../../navigation/screenString";
 import { Platform } from "react-native";
 import { apiPostMethod } from "../../api";
 import apiUrls from "../../api/apiUrls";
+import { CountryPicker } from "react-native-country-codes-picker";
+import { useDispatch } from "react-redux";
 
 export default function Signup({ navigation, ...props }) {
-  const [isCheck, setIsCheck] = useState(false);
+  const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isPasswordShow, setIsPasswordShow] = useState(false);
-  const [isConfirmPasswordShow, setIsConfirmPasswordShow] = useState(false);
-  const [isEmailCorrect, setIsEmailCorrect] = useState(false);
+  const [isCheck, setIsCheck] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState("+1");
+  const [isPickerShow, setIsPickerShow] = useState(false);
+  const [isPasswordShow, setIsPasswordShow] = useState(false);
+  const [isEmailCorrect, setIsEmailCorrect] = useState(false);
+
   const handleEmail = (email) => {
     setEmail(email);
     setIsEmailCorrect(isValidEmail(email));
@@ -43,29 +49,30 @@ export default function Signup({ navigation, ...props }) {
     formData.append("name", name);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("phone_number", phone);
+    formData.append("phone_number", countryCode + phone);
     formData.append("platform", Platform.OS);
-    formData.append("password_confirmation", confirmPassword);
+    formData.append("password_confirmation", password);
     apiPostMethod(apiUrls.baseUrl + apiUrls.register, formData)
       .then(({ data: { status, message } }) => {
         if (status === "Success") {
-          Alert.alert("Footee", message);
           setIsLoading(false);
-          handleNavigation(screenString.VERIFYOTP, { email });
+          handleNavigation(screenString.VERIFYOTP, {
+            email: Platform.OS === "web" ? email : countryCode + phone,
+          });
+          AlertShow(message, dispatch);
         } else {
           setIsLoading(false);
-          Alert.alert("Footee", "Somethings went wrong!");
+          AlertShow("Somethings went wrong!", dispatch);
         }
       })
       .catch((err) => {
+        setIsLoading(false);
         console.log("error==>", err);
         err = err?.response?.data;
-        setIsLoading(false);
-        if (err?.message?.email[0] === "The email has already been taken.") {
-          Alert.alert("Footee", "The email has already been taken.");
-        } else {
-          Alert.alert("Footee", "Somethings went wrong!");
-        }
+        if (err?.message?.email) AlertShow(err?.message?.email[0], dispatch);
+        else if (err?.message?.phone_number)
+          AlertShow(err.message.phone_number[0], dispatch);
+        else AlertShow("Somethings went wrong!", dispatch);
       });
   };
 
@@ -128,12 +135,53 @@ export default function Signup({ navigation, ...props }) {
             onChangeText={handleEmail}
             rightComponent={TextInputIcon(isEmailCorrect)}
           />
-          <CustomTextInput
-            label={"Phone Number"}
-            marginTop={15}
-            value={phone}
-            onChangeText={setPhone}
-            // rightComponent={TextInputIcon(name)}
+          <View
+            style={[
+              commonStyle.row(),
+              {
+                width: "90%",
+                maxWidth: 400,
+                justifyContent: "space-between",
+                marginTop: 15,
+              },
+            ]}
+          >
+            <TouchableOpacity
+              onPress={() => setIsPickerShow(true)}
+              style={{
+                width: "20%",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 60,
+                borderWidth: 1,
+                borderColor: colors.BORDER_COLOR,
+                borderRadius: 5,
+              }}
+            >
+              <CustomText color={colors.INPUT_TEXT}>{countryCode}</CustomText>
+            </TouchableOpacity>
+            <CustomTextInput
+              label={"Phone Number"}
+              value={phone}
+              keyboardType={"decimal-pad"}
+              onChangeText={(number) =>
+                isVaildNumber(number) &&
+                number?.length <= 10 &&
+                setPhone(number)
+              }
+              width={"75%"}
+            />
+          </View>
+          <CountryPicker
+            show={isPickerShow}
+            // initialState={countryCode}
+            style={{
+              modal: { flex: 1 },
+            }}
+            pickerButtonOnPress={(item) => {
+              setCountryCode(item.dial_code);
+              setIsPickerShow(false);
+            }}
           />
           <CustomTextInput
             label={"Password"}
@@ -149,25 +197,12 @@ export default function Signup({ navigation, ...props }) {
               </TouchableOpacity>
             }
           />
-          <CustomTextInput
-            label={"Confirm Password"}
-            marginTop={15}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!isConfirmPasswordShow}
-            rightComponent={
-              <TouchableOpacity
-                onPress={() => setIsConfirmPasswordShow(!isConfirmPasswordShow)}
-              >
-                {TextInputPasswordIcon(!isConfirmPasswordShow)}
-              </TouchableOpacity>
-            }
-          />
           <View
             style={[
               commonStyle.row("90%"),
               {
                 marginTop: 10,
+                maxWidth: 400,
               },
             ]}
           >
@@ -195,10 +230,8 @@ export default function Signup({ navigation, ...props }) {
             disabled={
               !name ||
               !isEmailCorrect ||
-              !phone ||
+              phone.length < 10 ||
               password.length < 6 ||
-              confirmPassword.length < 6 ||
-              password != confirmPassword ||
               !isCheck
             }
           />

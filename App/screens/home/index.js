@@ -22,14 +22,19 @@ export default function Home() {
       JSON.stringify(company_profile) != JSON.stringify(user?.company_profile)
     )
       setCompany_profile(user.company_profile);
+    return () => null;
   }, [user?.company_profile]);
   return (
     <Container backgroundColor={colors.WHITE}>
-      {company_profile ? (
+      {company_profile?.name ? (
         <View
           style={[
             commonStyle.container(colors.WHITE),
-            { marginHorizontal: 30, marginTop: 30 },
+            {
+              marginHorizontal: 30,
+              marginTop: 30,
+              alignItems: "center",
+            },
           ]}
         >
           <View
@@ -40,6 +45,7 @@ export default function Home() {
               borderRadius: 6,
               flexDirection: "row",
               alignItems: "center",
+              maxWidth: 400,
             }}
           >
             <CustomImage

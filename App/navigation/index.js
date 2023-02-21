@@ -6,6 +6,7 @@ import Splash from "../screens/splash";
 import ScreenString from "./screenString";
 import VerifyOtp from "../screens/verifyOtp";
 import OnBoarding from "../screens/onboarding";
+import ForgetPassword from "../screens/forgetPassword";
 import DrawerMenu from "../compnents/drawerMenu";
 import EditProfile from "../screens/editProfile";
 import AccountConfirmed from "../screens/accountConfirmed";
@@ -14,6 +15,7 @@ import CompanyPublicView from "../screens/companyPublicView";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Platform } from "react-native";
+import { useSelector } from "react-redux";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -51,6 +53,7 @@ function DrawerNavigationContainer() {
 }
 
 export default function MainNavigationContainer() {
+  const { user } = useSelector((state) => state.authReducers);
   return (
     <Stack.Navigator
       screenOptions={{
@@ -59,6 +62,10 @@ export default function MainNavigationContainer() {
       initialRouteName={ScreenString.SPLASH}
     >
       <Stack.Screen name={ScreenString.LOGIN} component={Login} />
+      <Stack.Screen
+        name={ScreenString.FORGETPASSWORD}
+        component={ForgetPassword}
+      />
       <Stack.Screen name={ScreenString.SPLASH} component={Splash} />
       <Stack.Screen name={ScreenString.SIGNUP} component={Signup} />
       <Stack.Screen name={ScreenString.VERIFYOTP} component={VerifyOtp} />
@@ -67,10 +74,12 @@ export default function MainNavigationContainer() {
         name={ScreenString.ACCOUNTCONFIRMED}
         component={AccountConfirmed}
       />
-      <Stack.Screen
-        name={ScreenString.DRAWER}
-        component={DrawerNavigationContainer}
-      />
+      {user && (
+        <Stack.Screen
+          name={ScreenString.DRAWER}
+          component={DrawerNavigationContainer}
+        />
+      )}
     </Stack.Navigator>
   );
 }

@@ -6,13 +6,12 @@ import commonStyle from "../../theme/commonStyle";
 export default memo(function Container({
   backgroundColor,
   children: ChildComponent,
+  paddingBottom = 30,
   ...props
 }) {
   if (Platform.OS === "web")
     return (
-      <View
-        style={[commonStyle.container(backgroundColor), { paddingBottom: 30 }]}
-      >
+      <View style={[commonStyle.container(backgroundColor), { paddingBottom }]}>
         {ChildComponent}
       </View>
     );
@@ -22,7 +21,7 @@ export default memo(function Container({
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
-      <View style={[commonStyle.container(), { paddingBottom: 30 }]}>
+      <View style={[commonStyle.container(), { paddingBottom }]}>
         {ChildComponent}
       </View>
     </KeyboardAwareScrollView>

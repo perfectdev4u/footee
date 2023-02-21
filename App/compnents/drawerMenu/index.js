@@ -15,7 +15,7 @@ export default function DrawerMenu(props) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { user } = useSelector((state) => state.authReducers);
-  const menuItems = [
+  const [menuItems, setMenuItems] = useState([
     {
       isActive: true,
       image: Images.sidebarHome,
@@ -34,19 +34,13 @@ export default function DrawerMenu(props) {
       label: "Company Profiles",
       screen: screenString.ADDCOMPANYPROFILE,
     },
-    // {
-    //   isActive: false,
-    //   image: Images.sidebarChangePassword,
-    //   label: 'Change Password',
-    //   // screen: screenString.HOME,
-    // },
     {
       isActive: false,
       image: Images.sidebarTerm,
       label: "Terms & Conditions",
       // screen: screenString.HOME,
     },
-  ];
+  ]);
   const [activeRoute, setActiveRoute] = useState(screenString.HOME);
   const handleNavigation = (screen, method) =>
     screen && navigation[method || "navigate"](screen);
@@ -55,7 +49,21 @@ export default function DrawerMenu(props) {
     const { routes, index } = state;
     const focusedRoute = routes[index].name;
     setActiveRoute(focusedRoute);
+    return () => null;
   }, [props]);
+
+  useEffect(() => {
+    if (user?.company_profile?.name) {
+      let copy = [...menuItems];
+      copy.splice(3, 0, {
+        isActive: false,
+        image: Images.sidebarCompanyProfile,
+        label: "Company Public Profile",
+        screen: screenString.COMPANYPUBLICVIEW,
+      });
+      setMenuItems(copy);
+    }
+  }, [user?.company_profile]);
   return (
     <SafeAreaView style={commonStyle.container(colors.THEME_COLOR)}>
       <ScrollView
@@ -115,13 +123,13 @@ export default function DrawerMenu(props) {
           label="Logout"
           screen={screenString.ONBOARDING}
           onPress={() => {
-            dispatch(reset());
             navigation.dispatch(
               CommonActions.reset({
                 index: 0,
-                routes: [{ name: screenString.ONBOARDING }],
+                routes: [{ name: screenString.LOGIN }],
               })
             );
+            dispatch(reset());
           }}
         />
       </View>

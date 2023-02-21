@@ -20,6 +20,7 @@ export default function Splash({ navigation, ...props }) {
         })
       );
     }, 3000);
+    return () => null;
   }, []);
 
   return (

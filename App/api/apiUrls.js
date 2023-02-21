@@ -4,6 +4,9 @@ export default {
   logout: "logout",
   otpVerify: "verify",
   register: "register",
+  resendOTP: "resend-otp",
   updateUser: "update-users",
+  setNewPassword: "email-verify",
+  forgetPassword: "forget-password",
   addCompanyProfile: "company-profile",
 };

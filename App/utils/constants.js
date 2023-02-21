@@ -2,6 +2,7 @@ import colors from "../theme/colors";
 import Feather from "react-native-vector-icons/Feather";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { showMessage } from "../redux/reducers/alertReducers";
 
 export const TextInputIcon = (status) => {
   if (status)
@@ -40,6 +41,9 @@ export const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 
+export const isVaildNumber = (number) => !isNaN(number);
+
+export const AlertShow = (message, dispatch) => dispatch(showMessage(message));
 export const categoryList = [
   "Room Addition",
   "Appliances Installation",

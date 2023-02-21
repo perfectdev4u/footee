@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import Images from "../../assets/Images";
 import Container from "../../compnents/container";
 import CustomHeader from "../../compnents/customHeader";
@@ -15,6 +15,9 @@ import apiUrls from "../../api/apiUrls";
 import { addUser, reset } from "../../redux/reducers/authReducers";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import screenString from "../../navigation/screenString";
+import { AlertShow, isVaildNumber } from "../../utils/constants";
+import CustomText from "../../compnents/customText";
+import { CountryPicker } from "react-native-country-codes-picker";
 
 export default function EditProfile(props) {
   const { user } = useSelector((state) => state.authReducers);
@@ -24,13 +27,15 @@ export default function EditProfile(props) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState("+1");
+  const [isPickerShow, setIsPickerShow] = useState(false);
 
   const handleUpdate = () => {
     setIsLoading(true);
     const formData = new FormData();
     formData.append("email", email);
     formData.append("name", name);
-    formData.append("phone_number", phone);
+    formData.append("phone_number", countryCode + phone);
     apiPostMethod(
       apiUrls.baseUrl + apiUrls.updateUser,
       formData,
@@ -38,11 +43,13 @@ export default function EditProfile(props) {
     )
       .then(({ data: { status } }) => {
         if (status === "success") {
-          dispatch(addUser({ ...user, name, email, phone_number: phone }));
-          Alert.alert("Footee", "Profile Update successfully!");
+          dispatch(
+            addUser({ ...user, name, email, phone_number: countryCode + phone })
+          );
+          AlertShow("Profile Update successfully!", dispatch);
           setIsLoading(false);
         } else {
-          Alert.alert("Footee", "Somethings went wrong!");
+          AlertShow("Somethings went wrong!", dispatch);
           setIsLoading(false);
         }
       })
@@ -51,7 +58,7 @@ export default function EditProfile(props) {
         console.log("error==>", err?.response?.data);
         err = err?.response?.data;
         if (err?.message === "Unauthenticated.") {
-          Alert.alert("Footee", "Session expired! Please login again.");
+          AlertShow("Session expired! Please login again.", dispatch);
           dispatch(reset());
           navigation.dispatch(
             CommonActions.reset({
@@ -63,9 +70,9 @@ export default function EditProfile(props) {
           err?.message ===
           "Email Address Already Exists Please use different email"
         ) {
-          Alert.alert("Footee", "The email has already been taken.");
+          AlertShow("The email has already been taken.", dispatch);
         } else {
-          Alert.alert("Footee", "Somethings went wrong!");
+          AlertShow("Somethings went wrong!", dispatch);
         }
       });
   };
@@ -73,7 +80,19 @@ export default function EditProfile(props) {
   useEffect(() => {
     if (name != user?.name) setName(user?.name || "");
     if (email != user?.email) setEmail(user?.email || "");
-    if (phone != user?.phone_number) setPhone(user?.phone_number || "");
+    if (phone != user?.phone_number) {
+      console.log("user?.phone_number==>", user?.phone_number);
+      let number =
+        user?.phone_number?.slice(
+          user.phone_number.length - 10,
+          user?.phone_number.length - 0
+        ) || "";
+      let code =
+        user?.phone_number?.slice(0, user?.phone_number.length - 10) || "";
+      setPhone(number);
+      setCountryCode(code);
+    }
+    return () => null;
   }, [user]);
   return (
     <Container backgroundColor={colors.WHITE}>
@@ -93,7 +112,7 @@ export default function EditProfile(props) {
               borderRadius: 40,
             }}
           />
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               width: 23,
               height: 23,
@@ -106,7 +125,7 @@ export default function EditProfile(props) {
             }}
           >
             <AntDesign name="camerao" size={15} color={colors.WHITE} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <CustomTextInput
           label={"Name"}
@@ -122,12 +141,51 @@ export default function EditProfile(props) {
           onChangeText={setEmail}
           width="100%"
         />
-        <CustomTextInput
-          label={"Phone Number"}
-          marginTop={20}
-          value={phone}
-          onChangeText={setPhone}
-          width="100%"
+        <View
+          style={[
+            commonStyle.row(),
+            {
+              width: "100%",
+              maxWidth: 400,
+              justifyContent: "space-between",
+              marginTop: 20,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={() => setIsPickerShow(true)}
+            style={{
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 60,
+              borderWidth: 1,
+              borderColor: colors.BORDER_COLOR,
+              borderRadius: 5,
+            }}
+          >
+            <CustomText color={colors.INPUT_TEXT}>{countryCode}</CustomText>
+          </TouchableOpacity>
+          <CustomTextInput
+            label={"Phone Number"}
+            value={phone}
+            keyboardType={"decimal-pad"}
+            onChangeText={(number) =>
+              isVaildNumber(number) && number?.length <= 10 && setPhone(number)
+            }
+            width={"75%"}
+          />
+        </View>
+        <CountryPicker
+          show={isPickerShow}
+          // initialState={countryCode}
+          style={{
+            modal: { flex: 1 },
+          }}
+          pickerButtonOnPress={(item) => {
+            setCountryCode(item.dial_code);
+            setIsPickerShow(false);
+          }}
         />
         <CustomButton
           fontSize={16}

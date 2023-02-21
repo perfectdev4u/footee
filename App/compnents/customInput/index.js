@@ -1,35 +1,36 @@
-import React, {memo} from 'react';
-import {View} from 'react-native';
-import {TextInput} from 'react-native-paper';
-import colors from '../../theme/colors';
+import React, { memo } from "react";
+import { View } from "react-native";
+import { TextInput } from "react-native-paper";
+import colors from "../../theme/colors";
 
 export default memo(function CustomTextInput({
   label,
   value,
   onChangeText,
   marginTop = 0,
-  width = '90%',
+  width = "90%",
   leftComponent,
   rightComponent,
   borderWidth = 1,
   borderRadius = 5,
   editable = true,
   secureTextEntry = false,
-  keyboardType = 'default',
+  keyboardType = "default",
   shadow = false,
   backgroundColor = colors.WHITE,
   borderColor = colors.BORDER_COLOR,
   activeUnderlineColor = colors.INPUT_PLACEHOLDER,
+  maxWidth = 400,
 }) {
   let shadowProps = {};
   if (shadow)
     shadowProps = {
-      shadowColor: 'rgba(186, 186, 186, 0.66)',
-      shadowOffset: {width: 0, height: 2},
+      shadowColor: "rgba(186, 186, 186, 0.66)",
+      shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.4,
       shadowRadius: 6,
     };
-  if (label)
+  // if (label)
     return (
       <View
         style={{
@@ -37,34 +38,38 @@ export default memo(function CustomTextInput({
           borderWidth,
           borderColor,
           borderRadius,
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           paddingLeft: leftComponent ? 10 : 0,
           paddingRight: rightComponent ? 10 : 0,
+          maxWidth,
           marginTop,
           backgroundColor: colors.WHITE,
           ...shadowProps,
-        }}>
+        }}
+      >
         {leftComponent && leftComponent}
         <View
           style={{
             flex: 1,
-            justifyContent: 'center',
-          }}>
+            justifyContent: "center",
+          }}
+        >
           <TextInput
             label={label}
             style={{
               borderRadius,
-              width: '100%',
+              width: "100%",
               color: colors.INPUT_TEXT,
               backgroundColor: backgroundColor,
             }}
             underlineStyle={{
-              display: 'none',
+              display: "none",
             }}
             value={value}
             onChangeText={onChangeText && onChangeText}
             editable={editable}
+            // keyboardType={"decimal-pad"}
             keyboardType={keyboardType}
             secureTextEntry={secureTextEntry}
             activeUnderlineColor={activeUnderlineColor}
@@ -73,5 +78,5 @@ export default memo(function CustomTextInput({
         {rightComponent && rightComponent}
       </View>
     );
-  return null;
+  // return null;
 });

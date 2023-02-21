@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import Images from "../../assets/Images";
 import Container from "../../compnents/container";
 import CustomHeader from "../../compnents/customHeader";
@@ -16,7 +16,7 @@ import apiUrls from "../../api/apiUrls";
 import { useDispatch, useSelector } from "react-redux";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import { addUser, reset } from "../../redux/reducers/authReducers";
-import { categoryList, isValidEmail } from "../../utils/constants";
+import { AlertShow, categoryList, isValidEmail } from "../../utils/constants";
 
 export default function AddCompanyProfile(props) {
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ export default function AddCompanyProfile(props) {
 
   const handleSubmit = () => {
     if (!isValidEmail(email)) {
-      Alert.alert("Footee", "Please provide vaild email!");
+      AlertShow("Please provide vaild email!", dispatch);
       return;
     }
     setIsLoading(true);
@@ -49,8 +49,8 @@ export default function AddCompanyProfile(props) {
       .then(({ data }) => {
         if (data?.user) {
           dispatch(addUser({ ...user, company_profile: data?.user }));
-          Alert.alert("Footee", "Data added successfully!");
-        } else Alert.alert("Footee", "Somethings went wrong!");
+          AlertShow("Data added successfully!", dispatch);
+        } else AlertShow("Somethings went wrong!", dispatch);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -58,7 +58,7 @@ export default function AddCompanyProfile(props) {
         console.log("error==>", err?.response?.data);
         err = err?.response?.data;
         if (err?.message === "Unauthorized") {
-          Alert.alert("Footee", "Session expired! Please login again.");
+          AlertShow("Session expired! Please login again.", dispatch);
           dispatch(reset());
           navigation.dispatch(
             CommonActions.reset({
@@ -66,7 +66,7 @@ export default function AddCompanyProfile(props) {
               routes: [{ name: screenString.LOGIN }],
             })
           );
-        } else Alert.alert("Footee", "Somethings went wrong!");
+        } else AlertShow("Somethings went wrong!", dispatch);
       });
   };
 
@@ -85,6 +85,7 @@ export default function AddCompanyProfile(props) {
       if (category != company_profile?.category)
         setCategory(company_profile?.category || "");
     }
+    return () => null;
   }, [user?.company_profile]);
   return (
     <Container backgroundColor={colors.WHITE}>
@@ -104,7 +105,7 @@ export default function AddCompanyProfile(props) {
               borderRadius: 40,
             }}
           />
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               width: 23,
               height: 23,
@@ -117,7 +118,7 @@ export default function AddCompanyProfile(props) {
             }}
           >
             <AntDesign name="camerao" size={15} color={colors.WHITE} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <CustomTextInput
           label={"Name"}
@@ -170,6 +171,18 @@ export default function AddCompanyProfile(props) {
           borderRadius={7}
           onPress={handleSubmit}
           isLoading={isLoading}
+          disabled={
+            (name === user?.company_profile?.name &&
+              email === user?.company_profile?.email &&
+              phone === user?.company_profile?.phone_number &&
+              address === user?.company_profile?.address &&
+              category === user?.company_profile?.category) ||
+            !name ||
+            !email ||
+            !phone ||
+            !address ||
+            !category
+          }
         />
         <CustomButton
           fontSize={16}
@@ -181,7 +194,7 @@ export default function AddCompanyProfile(props) {
           borderRadius={7}
           backgroundColor={colors.WHITE}
           onPress={() => handleNavigation(screenString.COMPANYPUBLICVIEW)}
-          disabled={!user?.company_profile}
+          disabled={!user?.company_profile?.name}
         />
       </View>
     </Container>
