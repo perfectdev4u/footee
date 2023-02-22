@@ -9,4 +9,5 @@ export default {
   setNewPassword: "email-verify",
   forgetPassword: "forget-password",
   addCompanyProfile: "company-profile",
+  getCategoryList: "get-categories",
 };

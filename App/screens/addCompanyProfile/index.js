@@ -11,12 +11,19 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import CustomButton from "../../compnents/customButton";
 import CustomDropDown from "../../compnents/customDropDown";
 import screenString from "../../navigation/screenString";
-import { apiPostMethod } from "../../api";
+import { apiGetMethod, apiPostMethod } from "../../api";
 import apiUrls from "../../api/apiUrls";
 import { useDispatch, useSelector } from "react-redux";
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import { addUser, reset } from "../../redux/reducers/authReducers";
-import { AlertShow, categoryList, isValidEmail } from "../../utils/constants";
+import {
+  AlertShow,
+  // categoryList,
+  isVaildNumber,
+  isValidEmail,
+} from "../../utils/constants";
+import { CountryPicker } from "react-native-country-codes-picker";
+import CustomText from "../../compnents/customText";
 
 export default function AddCompanyProfile(props) {
   const dispatch = useDispatch();
@@ -28,6 +35,9 @@ export default function AddCompanyProfile(props) {
   const [phone, setPhone] = useState("");
   const [category, setCategory] = useState("");
   const [address, setAddress] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
+  const [isPickerShow, setIsPickerShow] = useState(false);
+  const [categoryList, setCategoryList] = useState([]);
 
   const handleSubmit = () => {
     if (!isValidEmail(email)) {
@@ -87,6 +97,18 @@ export default function AddCompanyProfile(props) {
     }
     return () => null;
   }, [user?.company_profile]);
+
+  const getCategoryList = () => {
+    apiGetMethod(apiUrls.baseUrl + apiUrls.getCategoryList)
+      .then(({ data }) => {
+        console.log("data==>", data);
+        setCategoryList(data?.data || []);
+      })
+      .catch((err) => console.log("error==>", err.response.data));
+  };
+
+  useEffect(() => getCategoryList(), []);
+
   return (
     <Container backgroundColor={colors.WHITE}>
       <CustomHeader elementColor={colors.BLACK} screenLabel="Add Company" />
@@ -136,13 +158,51 @@ export default function AddCompanyProfile(props) {
           width="100%"
           leftComponent={<CustomImage source={Images.inputEmailIcon} />}
         />
-        <CustomTextInput
-          label={"Phone Number"}
-          marginTop={20}
-          value={phone}
-          onChangeText={setPhone}
-          width="100%"
-          leftComponent={<CustomImage source={Images.inputPhoneIcon} />}
+        <View
+          style={[
+            commonStyle.row(),
+            {
+              width: "100%",
+              maxWidth: 400,
+              justifyContent: "space-between",
+              marginTop: 15,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={() => setIsPickerShow(true)}
+            style={{
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 60,
+              borderWidth: 1,
+              borderColor: colors.BORDER_COLOR,
+              borderRadius: 5,
+            }}
+          >
+            <CustomText color={colors.INPUT_TEXT}>{countryCode}</CustomText>
+          </TouchableOpacity>
+          <CustomTextInput
+            label={"Phone Number"}
+            value={phone}
+            keyboardType={"decimal-pad"}
+            onChangeText={(number) =>
+              isVaildNumber(number) && number?.length <= 10 && setPhone(number)
+            }
+            width={"75%"}
+            leftComponent={<CustomImage source={Images.inputPhoneIcon} />}
+          />
+        </View>
+        <CountryPicker
+          show={isPickerShow}
+          style={{
+            modal: { flex: 1 },
+          }}
+          pickerButtonOnPress={(item) => {
+            setCountryCode(item.dial_code);
+            setIsPickerShow(false);
+          }}
         />
         <CustomTextInput
           label={"Location"}

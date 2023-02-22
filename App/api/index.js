@@ -19,7 +19,7 @@ export const apiPostMethod = (url, data, token) => {
 
 export const apiGetMethod = (url, token) => {
   let headers = {
-    "Content-Type": "multipart/form-data",
+    // "Content-Type": "multipart/form-data",
     Accept: "application/json",
   };
   if (token) headers.authorization = "Bearer " + token;

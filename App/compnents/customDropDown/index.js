@@ -105,9 +105,9 @@ export default memo(function CustomDropDown({
               fontWeight={"400"}
               color={colors.THEME_COLOR}
               isPressable={true}
-              onPress={() => handleClick(item)}
+              onPress={() => handleClick(item?.cat_value)}
             >
-              {item}
+              {item?.cat_text}
             </CustomText>
           </View>
         ))}

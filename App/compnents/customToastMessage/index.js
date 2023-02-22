@@ -16,6 +16,7 @@ export default function CustomToastMessage() {
     if (message && lastMessage != message) {
       setIsAlertShow(true);
       setlastMessage(message);
+      setTimeout(() => handleClose(), 2000);
     }
   }, [message]);
 
@@ -24,6 +25,11 @@ export default function CustomToastMessage() {
     setlastMessage("");
     dispatch(removeMessage());
   };
+
+  useEffect(() => {
+    // code
+    return () => handleClose();
+  }, []);
 
   if (isAlertShow)
     return (
@@ -41,54 +47,30 @@ export default function CustomToastMessage() {
           <View
             style={{
               width: "84%",
-              minHeight: 140,
+              minHeight: 80,
               backgroundColor: colors.WHITE,
               borderRadius: 15,
               maxWidth: 350,
+              padding: 20,
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <View
-              style={{
-                flex: 1,
-                padding: 20,
-                alignItems: "center",
-              }}
+            <CustomText
+              color={colors.MAINHEADING}
+              fontSize={20}
+              fontWeight={"700"}
             >
-              <CustomText
-                color={colors.MAINHEADING}
-                fontSize={20}
-                fontWeight={"700"}
-              >
-                Footee
-              </CustomText>
-              <CustomText
-                color={colors.MAINHEADING}
-                fontSize={15}
-                fontWeight={"500"}
-                textAlign={"center"}
-              >
-                {message}
-              </CustomText>
-            </View>
-            <TouchableOpacity
-              onPress={handleClose}
-              style={{
-                width: "100%",
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                borderTopWidth: 1,
-                borderColor: colors.BORDER_COLOR,
-              }}
+              Footee
+            </CustomText>
+            <CustomText
+              color={colors.MAINHEADING}
+              fontSize={15}
+              fontWeight={"500"}
+              textAlign={"center"}
             >
-              <CustomText
-                color={colors.THEME_COLOR}
-                fontWeight={"700"}
-                fontSize={17}
-              >
-                OK
-              </CustomText>
-            </TouchableOpacity>
+              {message}
+            </CustomText>
           </View>
         </View>
       </View>

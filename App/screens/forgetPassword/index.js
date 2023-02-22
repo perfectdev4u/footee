@@ -50,7 +50,7 @@ export default function ForgetPassword({ navigation, ...props }) {
     formData.append("platform", Platform.OS);
     apiPostMethod(apiUrls.baseUrl + apiUrls.forgetPassword, formData)
       .then(({ data: { status, message } }) => {
-        if (status === "success") {
+        if (status?.toLowerCase() === "success") {
           setIsOtpSent(true);
           AlertShow(message, dispatch);
         } else AlertShow("Somethings went wrong!", dispatch);
@@ -249,7 +249,7 @@ export default function ForgetPassword({ navigation, ...props }) {
                 marginTop={40}
                 borderColor={colors.WHITE}
                 borderRadius={7}
-                disabled={otp.length < 4 || password.length < 6}
+                disabled={otp.length < 5 || password.length < 6}
                 isLoading={setNewPasswordLoading}
                 onPress={handleSetNewPassword}
               />
